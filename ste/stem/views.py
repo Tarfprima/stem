@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from . import models # Чтобы обратиться к базе данных используем "модели" что-бы обратиться к моделям из них надо испортировать наш код. 
 
-# Create your views here.
+def stem_main(request): # Функция для рендера главной страницы stem_main.html
+    return render(
+        request,
+        'stem/stem_main.html'
+    )
+

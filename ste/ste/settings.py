@@ -75,7 +75,7 @@ WSGI_APPLICATION = 'ste.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql', # Используетя БД PostgreSQL
         'NAME': 'stem',
         'USER': 'creator',
     }
