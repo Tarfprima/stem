@@ -2,9 +2,9 @@
 from django.urls import path
 from . import views # Импорт содержимого файла views.py т.е получения доступа к содержимому файла.
 
+
+app_name = 'stem' # переменная с строкой stem для будущего использования 
 urlpatterns = [
     # Путь к страницам
-    #     "Ссылка",  "views.py",  "функция", "имя ссылки для работы с url". Ссылка на страницу  
-    path('stem/',   views.stem_main, name='StemMain'), # Ссылка на главную страницу: http://127.0.0.1:8000/stem/
-    
+    path('', views.index, name='index') # Ссылка на главную страницу: http://127.0.0.1:8000
 ]
