@@ -1,0 +1,99 @@
+/* Общие стили */
+body {
+    font-family: 'Open Sans', sans-serif; /* Читаемый шрифт */
+    background-color: #f0f0f0; /* Светлый фон */
+    color: #333; /* Тёмный текст */
+    margin: 0;
+    padding: 0;
+}
+
+/* Навигация */
+nav {
+    background-color: #222; /* Тёмная панель */
+    padding: 10px;
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-around;
+}
+
+nav a {
+    color: #fff; /* Белый текст */
+    text-decoration: none;
+    padding: 10px 20px;
+}
+
+/* Контент */
+main {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+h1 {
+    color: #222; /* Тёмный заголовок */
+    text-align: center;
+}
+
+p {
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+
+
+/* Формы авторизации */
+.auth-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form label {
+    display: block;
+    margin: 10px 0 5px;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #007BFF; /* Синий акцент */
+    color: #fff;
+}
+
+.btn:hover {
+    background-color: #0056b3; /* Темнее при наведении */
+}
+
+
+
+/* Список задач в профиле */
+.task-list {
+    list-style: none;
+    padding: 0;
+}
+
+.task-list li {
+    padding: 10px;
+    margin-bottom: 5px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}

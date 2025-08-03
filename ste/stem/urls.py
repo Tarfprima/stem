@@ -6,5 +6,9 @@ from . import views # Импорт содержимого файла views.py т
 app_name = 'stem' # переменная с строкой stem для будущего использования 
 urlpatterns = [
     # Путь к страницам
-    path('', views.index, name='index') # Ссылка на главную страницу: http://127.0.0.1:8000
+    path('', views.index, name='index'), # Ссылка на главную страницу: http://127.0.0.1:8000
+    path('add/', views.add_task, name='add_task'),
+    path('profile/', views.profile, name='profile'),
+    path('login/', views.login_view, name='login'),
+    path('register/', views.register_view, name='register'),
 ]
