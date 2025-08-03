@@ -16,3 +16,6 @@ def login_view(request):
 
 def register_view(request):
     return render(request, 'stem/register.html')
+
+def about(request):
+    return render(request, 'stem/about.html')

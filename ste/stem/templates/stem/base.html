@@ -8,16 +8,19 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a href="{% url 'stem:index' %}">Главная</a></li>
-            <li><a href="{% url 'stem:add_task' %}">Добавить задачу</a></li>
-            <li><a href="{% url 'stem:profile' %}">Профиль</a></li>
-            <li><a href="{% url 'stem:login' %}">Вход</a></li>
-            <li><a href="{% url 'stem:register' %}">Регистрация</a></li>
-        </ul>
-    </nav>
-    <main>
+    <header class="header">
+        <nav class="nav">
+            <ul>
+                <li><a href="{% url 'stem:index' %}">Главная</a></li>
+                <li><a href="{% url 'stem:add_task' %}">Добавить задачу</a></li>
+                <li><a href="{% url 'stem:profile' %}">Профиль</a></li>
+                <li><a href="{% url 'stem:login' %}">Вход</a></li>
+                <li><a href="{% url 'stem:register' %}">Регистрация</a></li>
+                <li><a href="{% url 'stem:about' %}">О сайте</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="main-content">
         {% block content %}{% endblock %}
     </main>
     <script src="{% static 'js/script.js' %}"></script>

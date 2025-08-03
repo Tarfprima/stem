@@ -1,20 +1,19 @@
 {% extends 'stem/base.html' %}
-
 {% block title %}Добавить задачу{% endblock %}
-
 {% block content %}
     <h1>Добавить задачу</h1>
-    <form method="post">
+    <form method="post" class="task-form">
         <label for="title">Название задачи</label>
         <input type="text" id="title" name="title" required>
         
         <label for="description">Описание</label>
-        <textarea id="description" name="description"></textarea>
+        <textarea id="description" name="description" rows="4" style="resize: none; overflow-y: auto;"></textarea>
         
         <label for="reminder">Время напоминания</label>
         <input type="datetime-local" id="reminder" name="reminder">
         
-        <button type="submit">Сохранить</button>
+        <button type="submit" class="btn">Сохранить</button>
+        <button type="reset" class="btn">Очистить</button>
     </form>
-    <a href="{% url 'stem:index' %}">Назад</a>
+    <a href="{% url 'stem:index' %}" class="back-link">Назад</a>
 {% endblock %}
