@@ -2,18 +2,18 @@
 {% block title %}Добавить задачу{% endblock %}
 {% block content %}
     <h1>Добавить задачу</h1>
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
     <form method="post" class="task-form">
-        <label for="title">Название задачи</label>
-        <input type="text" id="title" name="title" required>
-        
-        <label for="description">Описание</label>
-        <textarea id="description" name="description" rows="4" style="resize: none; overflow-y: auto;"></textarea>
-        
-        <label for="reminder">Время напоминания</label>
-        <input type="datetime-local" id="reminder" name="reminder">
-        
+        {% csrf_token %}
+        {{ form.as_p }}
         <button type="submit" class="btn">Сохранить</button>
-        <button type="reset" class="btn">Очистить</button>
+        <button type="reset" class="btn btn-secondary">Очистить</button>
     </form>
     <a href="{% url 'stem:index' %}" class="back-link">Назад</a>
 {% endblock %}

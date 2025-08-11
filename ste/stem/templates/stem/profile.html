@@ -2,19 +2,27 @@
 {% block title %}Профиль{% endblock %}
 {% block content %}
     <h1>Профиль пользователя</h1>
+    
     <h2>Активные задачи</h2>
     <ul class="task-list">
-        <li>Задача 1 - В процессе - 01.08.2025 12:00</li>
-        <li>Задача 2 - В процессе - 02.08.2025 14:00</li>
+        {% for task in active_tasks %}
+            <li>{{ task.title }} - В процессе - {{ task.created_at|date:"d.m.Y H:i" }}</li>
+        {% empty %}
+            <li>Нет активных задач</li>
+        {% endfor %}
     </ul>
     
     <h2>Завершённые задачи</h2>
     <ul class="task-list">
-        <li>Задача 3 - Выполнено - 31.07.2025 10:00</li>
+        {% for task in completed_tasks %}
+            <li>{{ task.title }} - Выполнено - {{ task.created_at|date:"d.m.Y H:i" }}</li>
+        {% empty %}
+            <li>Нет завершённых задач</li>
+        {% endfor %}
     </ul>
     
     <h2>Статистика</h2>
-    <p>Всего задач: 3</p>
-    <p>Активных: 2</p>
-    <p>Завершённых: 1</p>
+    <p>Всего задач: {{ total_tasks }}</p>
+    <p>Активных: {{ active_count }}</p>
+    <p>Завершённых: {{ completed_count }}</p>
 {% endblock %}

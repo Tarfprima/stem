@@ -14,8 +14,12 @@
                 <li><a href="{% url 'stem:index' %}">Главная</a></li>
                 <li><a href="{% url 'stem:add_task' %}">Добавить задачу</a></li>
                 <li><a href="{% url 'stem:profile' %}">Профиль</a></li>
-                <li><a href="{% url 'stem:login' %}">Вход</a></li>
-                <li><a href="{% url 'stem:register' %}">Регистрация</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'stem:logout' %}">Выход</a></li>
+                {% else %}
+                    <li><a href="{% url 'stem:login' %}">Вход</a></li>
+                    <li><a href="{% url 'stem:register' %}">Регистрация</a></li>
+                {% endif %}
                 <li><a href="{% url 'stem:about' %}">О сайте</a></li>
             </ul>
         </nav>
