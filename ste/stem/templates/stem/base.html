@@ -10,17 +10,20 @@
 <body>
     <header class="header">
         <nav class="nav">
-            <ul>
+            <ul class="nav-left">
                 <li><a href="{% url 'stem:index' %}">Главная</a></li>
-                <li><a href="{% url 'stem:add_task' %}">Добавить задачу</a></li>
-                <li><a href="{% url 'stem:profile' %}">Профиль</a></li>
+                <li><a href="{% url 'stem:about' %}">О сайте</a></li>
+            </ul>
+            <ul class="nav-right">
                 {% if user.is_authenticated %}
-                    <li><a href="{% url 'stem:logout' %}">Выход</a></li>
+                    <li class="profile-link">
+                        <a href="{% url 'stem:profile' %}">Профиль: {{ user.username }}</a> |
+                        <a href="{% url 'stem:logout' %}">Выйти</a>
+                    </li>
                 {% else %}
                     <li><a href="{% url 'stem:login' %}">Вход</a></li>
                     <li><a href="{% url 'stem:register' %}">Регистрация</a></li>
                 {% endif %}
-                <li><a href="{% url 'stem:about' %}">О сайте</a></li>
             </ul>
         </nav>
     </header>

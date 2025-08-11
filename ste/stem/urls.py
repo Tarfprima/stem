@@ -1,16 +1,19 @@
-# Это urls.py для приложения, а есть urls.py глобальный, который находится в файле ste, необходимо чтобы путь из глобального urls.py ввель в путь urls.py из приложения.
 from django.urls import path
-from . import views # Импорт содержимого файла views.py т.е получения доступа к содержимому файла.
+from . import views
 
-
-app_name = 'stem' # переменная с строкой stem для будущего использования 
+# Пространство имён для URL, чтобы избежать конфликтов
+app_name = 'stem'
 urlpatterns = [
-    # Путь к страницам
-    path('', views.index, name='index'), # Ссылка на главную страницу: http://127.0.0.1:8000
-    path('add/', views.add_task, name='add_task'),
+    # Главная страница
+    path('', views.index, name='index'),
+    # Страница профиля
     path('profile/', views.profile, name='profile'),
+    # Страница входа
     path('login/', views.login_view, name='login'),
+    # Страница регистрации
     path('register/', views.register_view, name='register'),
+    # Страница "О сайте"
     path('about/', views.about, name='about'),
+    # Страница выхода
     path('logout/', views.logout_view, name='logout'),
 ]
