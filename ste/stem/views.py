@@ -1,19 +1,71 @@
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.contrib.auth.decorators import login_required
+# Импортируем необходимые модули
+from django.shortcuts import render, redirect  # render для шаблонов, redirect для перенаправлений
+from django.contrib import messages  # Для сообщений об успехе или ошибке
+from django.contrib.auth import authenticate, login, logout  # Для авторизации
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm  # Стандартные формы Django
+from django.contrib.auth.decorators import login_required  # Декоратор для защиты страниц
+from .forms import NoteForm, ReminderForm  # Импортируем формы для заметок и напоминаний
+from .models import Task  # Импортируем модель Task для работы с базой
 
 # Главная страница
 def index(request):
     # Рендерит шаблон главной страницы
     return render(request, 'stem/index.html')
 
+# Страница добавления заметки
+@login_required
+def add_note(request):
+    # Если пользователь отправил форму (POST)
+    if request.method == 'POST':
+        form = NoteForm(request.POST)  # Создаём форму с данными из запроса
+        if form.is_valid():
+            task = form.save(commit=False)  # Создаём объект задачи, но не сохраняем сразу
+            task.user = request.user  # Привязываем задачу к текущему пользователю
+            task.save()  # Сохраняем задачу в базе
+            messages.success(request, 'Заметка добавлена!')  # Показываем сообщение об успехе
+            return redirect('stem:profile')  # Перенаправляем на профиль
+        else:
+            messages.error(request, 'Ошибка в форме.')  # Показываем сообщение об ошибке
+    else:
+        form = NoteForm()  # Пустая форма для GET-запроса
+    # Рендерим шаблон с формой
+    return render(request, 'stem/add_note.html', {'form': form})
+
+# Страница добавления напоминания
+@login_required
+def add_reminder(request):
+    # Если пользователь отправил форму (POST)
+    if request.method == 'POST':
+        form = ReminderForm(request.POST)  # Создаём форму с данными из запроса
+        if form.is_valid():
+            task = form.save(commit=False)  # Создаём объект задачи, но не сохраняем сразу
+            task.user = request.user  # Привязываем задачу к текущему пользователю
+            task.save()  # Сохраняем задачу в базе
+            messages.success(request, 'Напоминание добавлено!')  # Показываем сообщение об успехе
+            return redirect('stem:profile')  # Перенаправляем на профиль
+        else:
+            messages.error(request, 'Ошибка в форме.')  # Показываем сообщение об ошибке
+    else:
+        form = ReminderForm()  # Пустая форма для GET-запроса
+    # Рендерим шаблон с формой
+    return render(request, 'stem/add_reminder.html', {'form': form})
+
 # Страница профиля, защищена декоратором login_required
 @login_required
 def profile(request):
-    # Рендерит шаблон профиля
-    return render(request, 'stem/profile.html')
+    # Получаем задачи текущего пользователя, сортируем по дате создания (новые сверху)
+    tasks = Task.objects.filter(user=request.user).order_by('-created_at')
+    # Разделяем задачи на активные и завершённые
+    active_tasks = tasks.filter(completed=False)
+    completed_tasks = tasks.filter(completed=True)
+    # Передаём задачи и статистику в шаблон
+    return render(request, 'stem/profile.html', {
+        'active_tasks': active_tasks,
+        'completed_tasks': completed_tasks,
+        'total_tasks': tasks.count(),
+        'active_count': active_tasks.count(),
+        'completed_count': completed_tasks.count(),
+    })
 
 # Страница входа
 def login_view(request):

@@ -1,11 +1,14 @@
 from django.urls import path
 from . import views
 
-# Пространство имён для URL, чтобы избежать конфликтов
 app_name = 'stem'
 urlpatterns = [
     # Главная страница
     path('', views.index, name='index'),
+    # Страница добавления заметки 
+    path('add-note/', views.add_note, name='add_note'),
+    # Страница добавления напоминания
+    path('add-reminder/', views.add_reminder, name='add_reminder'),
     # Страница профиля
     path('profile/', views.profile, name='profile'),
     # Страница входа

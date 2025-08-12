@@ -20,7 +20,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
  
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '8(kzvaqe0(^$rq+abao!lt2mhfc%sl^&m7uoi9(expe70$ub@0'
+SECRET_KEY = ''
+
+# Импортируем токен из secret.py 
+from secret import TOKEN
+
+# Импортируем Bot из aiogram 
+from aiogram import Bot
+
+# Создаём объект бота с токеном (один бот на весь проект)
+BOT = Bot(token=TOKEN)  # Объект бота, который можно импортировать в другие файлы
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -123,3 +132,6 @@ STATICFILES_DIRS = [BASE_DIR / 'static' ] # чтобы static был виден 
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Указывает, куда перенаправлять невошедших пользователей при использовании @login_required
+LOGIN_URL = '/login/'

@@ -16,8 +16,8 @@ body {
 }
 
 .nav {
-    display: flex;
-    justify-content: space-between; /* Разделяем на левую и правую части */
+    display: flex; /* Используем flexbox для разделения на левую и правую стороны */
+    justify-content: space-between; /* Левая часть слева, правая — справа */
 }
 
 .nav ul {
@@ -172,4 +172,26 @@ p {
 #email-placeholder {
     color: #3498db;
     font-weight: 600;
+}
+
+/* Сообщения */
+.messages {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.messages li {
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #dff0d8; /* Зелёный фон для успеха */
+    color: #3c763d;
+    border: 1px solid #d6e9c6;
+    border-radius: 5px;
+}
+
+.messages li.error {
+    background: #f2dede; /* Красный фон для ошибок */
+    color: #a94442;
+    border: 1px solid #ebccd1;
 }
