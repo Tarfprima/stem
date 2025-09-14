@@ -11,7 +11,9 @@
     {% endif %}
     <form method="post" class="task-form">
         {% csrf_token %}
-        {{ form.as_p }}
+        <input type="text" name="title" placeholder="Текст напоминания" required>
+        <textarea name="description" placeholder="Описание"></textarea>
+        <input type="datetime-local" name="reminder_time" placeholder="Время напоминания" required>
         <button type="submit" class="btn">Сохранить</button>
         <button type="reset" class="btn btn-secondary">Очистить</button>
     </form>
