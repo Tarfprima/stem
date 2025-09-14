@@ -15,7 +15,7 @@ class NoteForm(forms.ModelForm):
             'title': 'Название заметки',
             'description': 'Описание',
         }
-        # Виджеты для стилизации (необязательно, но улучшает вид)
+        # Виджеты для стилизации 
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': 'Введите название'}),
             'description': forms.Textarea(attrs={'placeholder': 'Введите описание', 'rows': 4}),

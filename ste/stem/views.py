@@ -2,15 +2,10 @@
 from django.shortcuts import render, redirect  # render для шаблонов, redirect для перенаправлений
 from django.contrib import messages  # Для сообщений об успехе или ошибке
 from django.contrib.auth import authenticate, login, logout  # Для авторизации
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm  # Стандартные формы Django
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm  # Стандартные формы Django (не используем кастомные, чтобы не усложнять)
 from django.contrib.auth.decorators import login_required  # Декоратор для защиты страниц
-from .forms import NoteForm, ReminderForm  # Импортируем формы для заметок и напоминаний
-from .models import Task  # Импортируем модель Task для работы с базой
-
-# Главная страница
-def index(request):
-    # Рендерит шаблон главной страницы
-    return render(request, 'stem/index.html')
+from .forms import NoteForm, ReminderForm  # Импортируем формы
+from .models import Task # Импортируем модель Task для работы с базой данных
 
 # Страница добавления заметки
 @login_required
@@ -50,7 +45,7 @@ def add_reminder(request):
     # Рендерим шаблон с формой
     return render(request, 'stem/add_reminder.html', {'form': form})
 
-# Страница профиля, защищена декоратором login_required
+# Страница профиля
 @login_required
 def profile(request):
     # Получаем задачи текущего пользователя, сортируем по дате создания (новые сверху)
@@ -78,7 +73,6 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, 'Вы успешно вошли!')
                 return redirect('stem:profile')  # Перенаправляем на профиль
             else:
                 messages.error(request, 'Неверный логин или пароль.')
@@ -101,7 +95,6 @@ def register_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, 'Регистрация успешна!')
                 return redirect('stem:profile')  # Перенаправляем на профиль
             else:
                 messages.error(request, 'Ошибка в форме регистрации.')
@@ -122,5 +115,4 @@ def about(request):
 def logout_view(request):
     # Выполняет выход пользователя
     logout(request)
-    messages.success(request, 'Вы успешно вышли!')
-    return redirect('stem:index')  # Перенаправляем на главную
+    return redirect('stem:add_reminder')  # Перенаправляем на напоминания 

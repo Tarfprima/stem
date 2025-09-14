@@ -3,7 +3,7 @@ import asyncio
 from aiogram import Dispatcher
 from aiogram.filters import Command
 
-# Подключаем Django, (для доступа к настройкам и базе данных)
+# Подключаем Django, для доступа к настройкам и базе данных
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ste.settings')
 import django
@@ -18,7 +18,7 @@ from ste.settings import BOT
 # Импортируем sync_to_async для асинхронного доступа к синхронной БД Django
 from asgiref.sync import sync_to_async
 
-# Функция для получения данных из базы (адаптировано из другого проекта)
+# Функция для получения данных из базы 
 @sync_to_async
 def get_data():
     result = ''  # Пустая строка для хранения ответа
@@ -29,7 +29,7 @@ def get_data():
 # Создаём диспетчер для обработки сообщений
 dp = Dispatcher()
 
-# Обработчик команды /start (адаптировано из другого проекта)
+# Обработчик команды /start 
 @dp.message(Command("start"))
 async def command_start_handler(message):
     print('Ура! Мне написал', message.chat.id)  # Выводим в консоль ID пользователя
@@ -38,7 +38,6 @@ async def command_start_handler(message):
     await message.answer(  # Отправляем ответ пользователю
         "Ваши заметки и напоминания:\n" + tasks, parse_mode='Markdown')  # Используем Markdown для форматирования
 
-# Запуск бота (как в примере преподавателя)
 asyncio.run(  # Запуск асинхронной функции
     dp.start_polling(  # Диспетчер начинает обмен сообщениями
         BOT))  # Используя объект бота

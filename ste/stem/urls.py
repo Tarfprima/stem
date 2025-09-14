@@ -1,12 +1,15 @@
+# stem/urls.py
+
+# Импортируем path для создания маршрутов (стандартный импорт в Django)
 from django.urls import path
+# Импортируем представления из текущей папки
 from . import views
 
-app_name = 'stem'
+# Пространство имён для URL, чтобы избежать конфликтов (актуальный подход в Django)
+app_name = 'stem' # app_name = 'stem' — пространство имён для URL, чтобы использовать {% url 'stem:add_note' %} в шаблонах
 urlpatterns = [
-    # Главная страница
-    path('', views.index, name='index'),
-    # Страница добавления заметки 
-    path('add-note/', views.add_note, name='add_note'),
+    # Страница добавления заметки
+    path('', views.add_note, name='add_note'),
     # Страница добавления напоминания
     path('add-reminder/', views.add_reminder, name='add_reminder'),
     # Страница профиля
