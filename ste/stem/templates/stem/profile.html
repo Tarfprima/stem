@@ -1,12 +1,31 @@
 {% extends 'stem/base.html' %}
 {% block title %}Профиль{% endblock %}
 {% block content %}
-    <h1>Профиль пользователя</h1>
+    <h1>{{ user.username }}</h1>
     
     <h2>Активные задачи</h2>
     <ul class="task-list">
         {% for task in active_tasks %}
-            <li>{{ task.title }} - В процессе - {{ task.created_at|date:"d.m.Y H:i" }}</li>
+            <li><!-- Вывод названия и описания остаётся без изменений -->
+                <strong>{{ task.title }}</strong>
+                {% if task.description %} - {{ task.description }}{% endif %}
+                <br>
+                <!-- Дата создания -->
+                <small>{{ task.created_at|date:"d.m.Y H:i" }}</small>
+              
+                <!-- форма удаления-->
+                <form method="post" action="{% url 'stem:delete_task' task.id %}" class="task-action-form">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-delete">Удалить</button>
+                  </form>
+                </form>
+                <!-- Выполнить -->
+                <form method="post" action="{% url 'stem:complete_task' task.id %}" class="task-action-form">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-complete">Выполнено</button>
+                  </form>
+
+            </li>
         {% empty %}
             <li>Нет активных задач</li>
         {% endfor %}
@@ -15,11 +34,18 @@
     <h2>Завершённые задачи</h2>
     <ul class="task-list">
         {% for task in completed_tasks %}
-            <li>{{ task.title }} - Выполнено - {{ task.created_at|date:"d.m.Y H:i" }}</li>
+            <li>{{ task.title }} - Выполнено - {{ task.created_at|date:"d.m.Y H:i" }}
+                <form method="post" action="{% url 'stem:delete_task' task.id %}" class="task-action-form">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-delete">Удалить</button>
+                  </form>
+                </form>
+            </li>
         {% empty %}
             <li>Нет завершённых задач</li>
         {% endfor %}
     </ul>
+    
     
     <h2>Статистика</h2>
     <p>Всего задач: {{ total_tasks }}</p>
