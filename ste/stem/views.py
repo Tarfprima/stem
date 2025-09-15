@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required  # Декоратор 
 from .forms import NoteForm, ReminderForm  # Импортируем формы
 from .models import Task # Импортируем модель Task для работы с базой данных
 from django.views.decorators.http import require_POST # Импортируем декоратор, который разрешает только POST запросы
+from django.core.paginator import Paginator
 
 
 # Страница добавления заметки
@@ -48,18 +49,27 @@ def add_reminder(request):
 # Страница профиля
 @login_required
 def profile(request):
-    # Получаем задачи текущего пользователя, сортируем по дате создания (новые сверху)
-    tasks = Task.objects.filter(user=request.user).order_by('-created_at')
-    # Разделяем задачи на активные и завершённые
-    active_tasks = tasks.filter(completed=False)
-    completed_tasks = tasks.filter(completed=True)
-    # Передаём задачи и статистику в шаблон
+    # Получаем все задачи пользователя, новые сверху
+    all_tasks = Task.objects.filter(user=request.user).order_by('-created_at')
+    
+    # Создаём Paginator: по 10 задач на страницу
+    paginator = Paginator(all_tasks, 4)
+    
+    # Номер текущей страницы из GET-параметра ?page=
+    page_number = request.GET.get('page', 1)
+    
+    # Получаем объект страницы
+    page_obj = paginator.get_page(page_number)
+    
+    # Разделяем активные и завершённые только для статистики
+    active_count = all_tasks.filter(completed=False).count()
+    completed_count = all_tasks.filter(completed=True).count()
+    
     return render(request, 'stem/profile.html', {
-        'active_tasks': active_tasks,
-        'completed_tasks': completed_tasks,
-        'total_tasks': tasks.count(),
-        'active_count': active_tasks.count(),
-        'completed_count': completed_tasks.count(),
+        'page_obj': page_obj,            # Список задач для текущей страницы
+        'total_tasks': all_tasks.count(),
+        'active_count': active_count,
+        'completed_count': completed_count,
     })
 
 # Страница входа
