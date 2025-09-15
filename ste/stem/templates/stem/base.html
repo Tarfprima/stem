@@ -1,36 +1,35 @@
-<!DOCTYPE html>
 {% load static %}
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}STEM{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <meta charset="UTF-8">
+  <title>{% block title %}STEM{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <header class="header">
-        <nav class="nav">
-            <ul class="nav-left">
-                <li><a href="{% url 'stem:add_note' %}">Добавить заметку</a></li>
-                <li><a href="{% url 'stem:add_reminder' %}">Добавить напоминание</a></li>
-                <li><a href="{% url 'stem:about' %}">О сайте</a></li>
-            </ul>
-            <ul class="nav-right">
-                {% if user.is_authenticated %}
-                    <li class="profile-link">
-                        <a href="{% url 'stem:profile' %}">Профиль: {{ user.username }}</a> |
-                        <a href="{% url 'stem:logout' %}">Выйти</a>
-                    </li>
-                {% else %}
-                    <li><a href="{% url 'stem:login' %}">Вход</a></li>
-                    <li><a href="{% url 'stem:register' %}">Регистрация</a></li>
-                {% endif %}
-            </ul>
-        </nav>
-    </header>
-    <main class="main-content">
-        {% block content %}{% endblock %}
-    </main>
-    <script src="{% static 'js/script.js' %}"></script>
+  <header class="header">
+    <nav class="nav">
+      <!-- Основные ссылки по центру -->
+      <ul class="nav-center">
+        <li><a href="{% url 'stem:add_note' %}">Добавить заметку</a></li>
+        <li><a href="{% url 'stem:add_reminder' %}">Добавить напоминание</a></li>
+        <li><a href="{% url 'stem:about' %}">О сайте</a></li>
+      </ul>
+      <!-- Ссылка на профиль: вход/регистрация справа от центра -->
+      <ul class="nav-auth">
+        {% if user.is_authenticated %}
+          <li><a href="{% url 'stem:profile' %}">Профиль</a></li>
+          <li><a href="{% url 'stem:logout' %}">Выход</a></li>
+        {% else %}
+          <li><a href="{% url 'stem:login' %}">Вход</a></li>
+          <li><a href="{% url 'stem:register' %}">Регистрация</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </header>
+
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
 </body>
 </html>

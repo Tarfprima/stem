@@ -1,4 +1,5 @@
 # Импортируем необходимые модули
+from django.utils import timezone 
 from django.shortcuts import render, redirect, get_object_or_404  # render для шаблонов, redirect для перенаправлений, Импортируем функцию для получения объекта или ошибки 404
 from django.contrib import messages  # Для сообщений об успехе или ошибке
 from django.contrib.auth import authenticate, login, logout  # Для авторизации
@@ -8,6 +9,7 @@ from .forms import NoteForm, ReminderForm  # Импортируем формы
 from .models import Task # Импортируем модель Task для работы с базой данных
 from django.views.decorators.http import require_POST # Импортируем декоратор, который разрешает только POST запросы
 from django.core.paginator import Paginator
+from django.utils import timezone 
 
 
 # Страница добавления заметки
@@ -49,27 +51,23 @@ def add_reminder(request):
 # Страница профиля
 @login_required
 def profile(request):
-    # Получаем все задачи пользователя, новые сверху
-    all_tasks = Task.objects.filter(user=request.user).order_by('-created_at')
-    
-    # Создаём Paginator: по 10 задач на страницу
-    paginator = Paginator(all_tasks, 4)
-    
-    # Номер текущей страницы из GET-параметра ?page=
+    # Все активные задачи (completed=False), новые сверху
+    active_tasks = Task.objects.filter(user=request.user, completed=False).order_by('-created_at')
+    # Пагинация только активных задач
+    paginator = Paginator(active_tasks, 3)
     page_number = request.GET.get('page', 1)
-    
-    # Получаем объект страницы
-    page_obj = paginator.get_page(page_number)
-    
-    # Разделяем активные и завершённые только для статистики
-    active_count = all_tasks.filter(completed=False).count()
-    completed_count = all_tasks.filter(completed=True).count()
-    
+    active_page = paginator.get_page(page_number)
+
+    # Все завершённые задачи (completed=True), новые сверху
+    completed_tasks = Task.objects.filter(user=request.user, completed=True).order_by('-created_at')
+
     return render(request, 'stem/profile.html', {
-        'page_obj': page_obj,            # Список задач для текущей страницы
-        'total_tasks': all_tasks.count(),
-        'active_count': active_count,
-        'completed_count': completed_count,
+        'active_page': active_page,
+        'completed_tasks': completed_tasks,
+        'total_tasks': Task.objects.filter(user=request.user).count(),
+        'active_count': active_tasks.count(),
+        'completed_count': completed_tasks.count(),
+        'now': timezone.now(),
     })
 
 # Страница входа

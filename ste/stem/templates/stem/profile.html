@@ -1,54 +1,78 @@
 {% extends 'stem/base.html' %}
-{% block title %}Профиль{% endblock %}
-{% block content %}
-    <h1>{{ user.username }}</h1>
-    
-    <h2>Активные задачи</h2>
-    <ul class="task-list">
-        {% for task in active_tasks %}
-            <li><!-- Вывод названия и описания остаётся без изменений -->
-                <strong>{{ task.title }}</strong>
-                {% if task.description %} - {{ task.description }}{% endif %}
-                <br>
-                <!-- Дата создания -->
-                <small>{{ task.created_at|date:"d.m.Y H:i" }}</small>
-              
-                <!-- форма удаления-->
-                <form method="post" action="{% url 'stem:delete_task' task.id %}" class="task-action-form">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-delete">Удалить</button>
-                  </form>
-                </form>
-                <!-- Выполнить -->
-                <form method="post" action="{% url 'stem:complete_task' task.id %}" class="task-action-form">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-complete">Выполнено</button>
-                  </form>
+{% load static %}
 
-            </li>
-        {% empty %}
-            <li>Нет активных задач</li>
-        {% endfor %}
-    </ul>
-    
-    <h2>Завершённые задачи</h2>
-    <ul class="task-list">
-        {% for task in completed_tasks %}
-            <li>{{ task.title }} - Выполнено - {{ task.created_at|date:"d.m.Y H:i" }}
-                <form method="post" action="{% url 'stem:delete_task' task.id %}" class="task-action-form">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-delete">Удалить</button>
-                  </form>
-                </form>
-            </li>
-        {% empty %}
-            <li>Нет завершённых задач</li>
-        {% endfor %}
-    </ul>
-    
-    
-    <h2>Статистика</h2>
-    <p>Всего задач: {{ total_tasks }}</p>
-    <p>Активных: {{ active_count }}</p>
-    <p>Завершённых: {{ completed_count }}</p>
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<h1>Профиль</h1>
+
+<p>Всего задач: {{ total_tasks }}</p>
+<p>Активных: {{ active_count }}</p>
+<p>Завершённых: {{ completed_count }}</p>
+
+<h2>Активные задачи</h2>
+<ul>
+  {% for task in active_page %}
+    <li class="task-item {% if task.reminder_time %}reminder{% else %}note{% endif %}">
+      {% if task.reminder_time %}
+        ⏰
+      {% else %}
+        📝
+      {% endif %}
+      <strong>{{ task.title }}</strong>
+
+      {% if task.description %}
+        <p class="task-desc">{{ task.description }}</p>
+      {% endif %}
+
+      <div class="task-meta">
+        <small>Создано: {{ task.created_at|date:"d.m.Y H:i" }}</small>
+        {% if task.reminder_time %}
+          <small class="reminder-time">
+            Напоминание: {{ task.reminder_time|date:"d.m.Y H:i" }}
+          </small>
+        {% endif %}
+      </div>
+
+      <div class="task-actions">
+        <form method="post" action="{% url 'stem:complete_task' task.id %}" class="task-action-form">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-complete">Выполнено</button>
+        </form>
+        <form method="post" action="{% url 'stem:delete_task' task.id %}" class="task-action-form">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-delete">Удалить</button>
+        </form>
+      </div>
+    </li>
+  {% empty %}
+    <li>Активных задач нет.</li>
+  {% endfor %}
+</ul>
+
+<div class="pagination">
+  {% if active_page.has_previous %}
+    <a href="?page={{ active_page.previous_page_number }}">← Назад</a>
+  {% endif %}
+  <span>Стр. {{ active_page.number }} из {{ active_page.paginator.num_pages }}</span>
+  {% if active_page.has_next %}
+    <a href="?page={{ active_page.next_page_number }}">Вперёд →</a>
+  {% endif %}
+</div>
+
+<h2>Завершённые задачи</h2>
+<ul>
+  {% for task in completed_tasks %}
+    <li class="task-item completed">
+      ✅ <strong>{{ task.title }}</strong>
+      <small>{{ task.created_at|date:"d.m.Y H:i" }}</small>
+      <form method="post" action="{% url 'stem:delete_task' task.id %}" class="task-action-form">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-delete">Удалить</button>
+      </form>
+    </li>
+  {% empty %}
+    <li>Завершённых задач нет.</li>
+  {% endfor %}
+</ul>
 {% endblock %}
