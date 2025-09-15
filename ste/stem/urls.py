@@ -22,4 +22,11 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     # Страница выхода
     path('logout/', views.logout_view, name='logout'),
+    # 'delete/<int:task_id>/' - URL шаблон, где <int:task_id> автоматически преобразует число в параметр
+    path('delete/<int:task_id>/', views.delete_task, name='delete_task'),
+    # views.delete_task - функция, которая будет обрабатывать этот URL
+    # name='delete_task' - имя URL для использования в шаблонах через {% url %}
+    # строка для пометки «Выполнено»
+    path('complete/<int:task_id>/', views.complete_task, name='complete_task'),
+
 ]

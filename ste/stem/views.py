@@ -1,11 +1,13 @@
 # Импортируем необходимые модули
-from django.shortcuts import render, redirect  # render для шаблонов, redirect для перенаправлений
+from django.shortcuts import render, redirect, get_object_or_404  # render для шаблонов, redirect для перенаправлений, Импортируем функцию для получения объекта или ошибки 404
 from django.contrib import messages  # Для сообщений об успехе или ошибке
 from django.contrib.auth import authenticate, login, logout  # Для авторизации
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm  # Стандартные формы Django (не используем кастомные, чтобы не усложнять)
 from django.contrib.auth.decorators import login_required  # Декоратор для защиты страниц
 from .forms import NoteForm, ReminderForm  # Импортируем формы
 from .models import Task # Импортируем модель Task для работы с базой данных
+from django.views.decorators.http import require_POST # Импортируем декоратор, который разрешает только POST запросы
+
 
 # Страница добавления заметки
 @login_required
@@ -17,7 +19,6 @@ def add_note(request):
             task = form.save(commit=False)  # Создаём объект задачи, но не сохраняем сразу
             task.user = request.user  # Привязываем задачу к текущему пользователю
             task.save()  # Сохраняем задачу в базе
-            messages.success(request, 'Заметка добавлена!')  # Показываем сообщение об успехе
             return redirect('stem:profile')  # Перенаправляем на профиль
         else:
             messages.error(request, 'Ошибка в форме.')  # Показываем сообщение об ошибке
@@ -36,7 +37,6 @@ def add_reminder(request):
             task = form.save(commit=False)  # Создаём объект задачи, но не сохраняем сразу
             task.user = request.user  # Привязываем задачу к текущему пользователю
             task.save()  # Сохраняем задачу в базе
-            messages.success(request, 'Напоминание добавлено!')  # Показываем сообщение об успехе
             return redirect('stem:profile')  # Перенаправляем на профиль
         else:
             messages.error(request, 'Ошибка в форме.')  # Показываем сообщение об ошибке
@@ -115,4 +115,33 @@ def about(request):
 def logout_view(request):
     # Выполняет выход пользователя
     logout(request)
-    return redirect('stem:add_reminder')  # Перенаправляем на напоминания 
+    return redirect('stem:login')  # Перенаправляем на напоминания 
+
+@login_required  # Декоратор - функция доступна только авторизованным пользователям
+@require_POST    # Декоратор - функция принимает только POST запросы (безопасность)
+def delete_task(request, task_id):
+    # request - объект запроса от пользователя
+    # task_id - ID задачи из URL (например, /delete/5/ -> task_id = 5)
+    
+    # Ищем задачу по ID и проверяем, что она принадлежит текущему пользователю
+    # Если задача не найдена или не принадлежит пользователю - вернет ошибку 404
+    task = get_object_or_404(Task, id=task_id, user=request.user)
+    
+    # Удаляем задачу из базы данных
+    task.delete()
+    
+    # Перенаправляем пользователя обратно на страницу профиля
+    return redirect('stem:profile')
+
+@login_required                  # Доступ только для авторизованных
+@require_POST                    # Разрешаем только POST-запросы
+def complete_task(request, task_id):
+    # Ищем задачу по ID и пользователю, 404 если не найдена
+    task = get_object_or_404(Task, id=task_id, user=request.user)
+    
+    # Помечаем задачу как завершённую
+    task.completed = True
+    task.save()                 # Сохраняем изменение в базе
+        
+    # Возвращаемся на профиль
+    return redirect('stem:profile')
