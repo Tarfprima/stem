@@ -18,7 +18,7 @@
       <!-- Ссылка на профиль: вход/регистрация справа от центра -->
       <ul class="nav-auth">
         {% if user.is_authenticated %}
-          <li><a href="{% url 'stem:profile' %}">Профиль</a></li>
+          <li><a href="{% url 'stem:profile' %}">Профиль: {{ user.username }}</a></li>
           <li><a href="{% url 'stem:logout' %}">Выход</a></li>
         {% else %}
           <li><a href="{% url 'stem:login' %}">Вход</a></li>

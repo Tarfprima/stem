@@ -4,7 +4,7 @@
 {% block title %}Профиль{% endblock %}
 
 {% block content %}
-<h1>Профиль</h1>
+<h1>{{ user.username }}</h1>
 
 <p>Всего задач: {{ total_tasks }}</p>
 <p>Активных: {{ active_count }}</p>
