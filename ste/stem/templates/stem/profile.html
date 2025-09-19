@@ -6,20 +6,22 @@
 {% block content %}
 <h1>{{ user.username }}</h1>
 
+<!-- Статистика задач -->
 <p>Всего задач: {{ total_tasks }}</p>
 <p>Активных: {{ active_count }}</p>
 <p>Завершённых: {{ completed_count }}</p>
 
+<!-- Активные задачи -->
 <h2>Активные задачи</h2>
-<ul>
+<ul class="tasks-grid"> {# <--- ДОБАВЛЕН КЛАСС #}
   {% for task in active_page %}
     <li class="task-item {% if task.reminder_time %}reminder{% else %}note{% endif %}">
-      {% if task.reminder_time %}
-        ⏰
-      {% else %}
-        📝
-      {% endif %}
-      <strong>{{ task.title }}</strong>
+      <div class="task-header">
+        <span class="task-icon">
+          {% if task.reminder_time %}⏰{% else %}📝{% endif %}
+        </span>
+        <strong class="task-title">{{ task.title }}</strong>
+      </div>
 
       {% if task.description %}
         <p class="task-desc">{{ task.description }}</p>
@@ -28,9 +30,7 @@
       <div class="task-meta">
         <small>Создано: {{ task.created_at|date:"d.m.Y H:i" }}</small>
         {% if task.reminder_time %}
-          <small class="reminder-time">
-            Напоминание: {{ task.reminder_time|date:"d.m.Y H:i" }}
-          </small>
+          <small class="reminder-time">Напоминание: {{ task.reminder_time|date:"d.m.Y H:i" }}</small>
         {% endif %}
       </div>
 
@@ -46,10 +46,11 @@
       </div>
     </li>
   {% empty %}
-    <li>Активных задач нет.</li>
+    <li class="empty-state">Активных задач нет.</li>
   {% endfor %}
 </ul>
 
+<!-- Пагинация -->
 <div class="pagination">
   {% if active_page.has_previous %}
     <a href="?page={{ active_page.previous_page_number }}">← Назад</a>
@@ -60,19 +61,27 @@
   {% endif %}
 </div>
 
+<!-- Завершённые задачи -->
 <h2>Завершённые задачи</h2>
-<ul>
+<ul class="tasks-grid"> {# <--- ДОБАВЛЕН КЛАСС #}
   {% for task in completed_tasks %}
     <li class="task-item completed">
-      ✅ <strong>{{ task.title }}</strong>
-      <small>{{ task.created_at|date:"d.m.Y H:i" }}</small>
-      <form method="post" action="{% url 'stem:delete_task' task.id %}" class="task-action-form">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-delete">Удалить</button>
-      </form>
+      <div class="task-header">
+        <span class="task-icon">✅</span>
+        <strong class="task-title">{{ task.title }}</strong>
+      </div>
+      <div class="task-meta">
+        <small>Создано: {{ task.created_at|date:"d.m.Y H:i" }}</small>
+      </div>
+      <div class="task-actions">
+        <form method="post" action="{% url 'stem:delete_task' task.id %}" class="task-action-form">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-delete">Удалить</button>
+        </form>
+      </div>
     </li>
   {% empty %}
-    <li>Завершённых задач нет.</li>
+    <li class="empty-state">Завершённых задач нет.</li>
   {% endfor %}
 </ul>
 {% endblock %}

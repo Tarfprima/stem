@@ -31,5 +31,31 @@
   <main class="main-content">
     {% block content %}{% endblock %}
   </main>
+
+  <!-- Модальное окно для просмотра полного описания задачи -->
+  <div id="taskModal" class="modal-overlay">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <span class="modal-task-icon">📝</span>
+          <span class="modal-task-title">Заголовок задачи</span>
+        </h3>
+        <button class="modal-close" id="modalCloseBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-content" id="modalContent">
+          Содержимое задачи будет здесь...
+        </div>
+        <div class="modal-meta" id="modalMeta">
+          <div class="task-created">Создано: <span id="modalCreated"></span></div>
+          <div class="reminder-time" id="modalReminder" style="display: none;">
+            Напоминание: <span id="modalReminderTime"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'js/script.js' %}" defer></script>
 </body>
 </html>

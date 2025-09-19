@@ -54,7 +54,7 @@ def profile(request):
     # Все активные задачи (completed=False), новые сверху
     active_tasks = Task.objects.filter(user=request.user, completed=False).order_by('-created_at')
     # Пагинация только активных задач
-    paginator = Paginator(active_tasks, 10)
+    paginator = Paginator(active_tasks, 12)
     page_number = request.GET.get('page', 1)
     active_page = paginator.get_page(page_number)
 
