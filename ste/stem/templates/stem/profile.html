@@ -12,8 +12,30 @@
 <p>Завершённых: {{ completed_count }}</p>
 
 <!-- Активные задачи -->
-<h2>Активные задачи</h2>
-<ul class="tasks-grid"> {# <--- ДОБАВЛЕН КЛАСС #}
+<div class="section-header">
+  <h2>Активные задачи</h2>
+  <div class="search-container">
+    <input 
+      type="text" 
+      id="searchActiveTask" 
+      class="search-input" 
+      placeholder="🔍 Поиск по названию..." 
+      autocomplete="off"
+    >
+    <select id="sortActiveTask" class="sort-select">
+      <option value="default">По умолчанию</option>
+      <option value="date-desc">Сначала новые</option>
+      <option value="date-asc">Сначала старые</option>
+    </select>
+    <select id="filterActiveTask" class="filter-select">
+      <option value="all">Все</option>
+      <option value="notes">Только заметки</option>
+      <option value="reminders">Только напоминания</option>
+    </select>
+    <div class="search-results-count" id="activeResultsCount"></div>
+  </div>
+</div>
+<ul class="tasks-grid active-tasks" data-section="active"> {# <--- ДОБАВЛЕН КЛАСС #}
   {% for task in active_page %}
     <li class="task-item {% if task.reminder_time %}reminder{% else %}note{% endif %}">
       <div class="task-header">
@@ -62,8 +84,30 @@
 </div>
 
 <!-- Завершённые задачи -->
-<h2>Завершённые задачи</h2>
-<ul class="tasks-grid"> {# <--- ДОБАВЛЕН КЛАСС #}
+<div class="section-header">
+  <h2>Завершённые задачи</h2>
+  <div class="search-container">
+    <input 
+      type="text" 
+      id="searchCompletedTask" 
+      class="search-input" 
+      placeholder="🔍 Поиск по названию..." 
+      autocomplete="off"
+    >
+    <select id="sortCompletedTask" class="sort-select">
+      <option value="default">По умолчанию</option>
+      <option value="date-desc">Сначала новые</option>
+      <option value="date-asc">Сначала старые</option>
+    </select>
+    <select id="filterCompletedTask" class="filter-select">
+      <option value="all">Все</option>
+      <option value="notes">Только заметки</option>
+      <option value="reminders">Только напоминания</option>
+    </select>
+    <div class="search-results-count" id="completedResultsCount"></div>
+  </div>
+</div>
+<ul class="tasks-grid completed-tasks" data-section="completed"> {# <--- ДОБАВЛЕН КЛАСС #}
   {% for task in completed_tasks %}
     <li class="task-item completed">
       <div class="task-header">
