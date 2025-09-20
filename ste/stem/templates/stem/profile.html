@@ -128,4 +128,46 @@
     <li class="empty-state">Завершённых задач нет.</li>
   {% endfor %}
 </ul>
+
+<!-- Просроченные задачи (Невыполнено) -->
+<div class="section-header">
+  <h2>Невыполнено ({{ overdue_count }})</h2>
+</div>
+<ul class="tasks-grid overdue-tasks">
+  {% for task in overdue_tasks %}
+    <li class="task-item overdue {% if task.reminder_time %}reminder{% else %}note{% endif %}">
+      <div class="task-header">
+        <span class="task-icon">
+          {% if task.reminder_time %}⏰{% else %}📝{% endif %}
+        </span>
+        <strong class="task-title">{{ task.title }}</strong>
+      </div>
+
+      {% if task.description %}
+        <p class="task-desc">{{ task.description }}</p>
+      {% endif %}
+
+      <div class="task-meta">
+        <small>Создано: {{ task.created_at|date:"d.m.Y H:i" }}</small>
+        {% if task.reminder_time %}
+          <small class="reminder-time">Напоминание: {{ task.reminder_time|date:"d.m.Y H:i" }}</small>
+        {% endif %}
+      </div>
+
+      <div class="task-actions">
+        <form method="post" action="{% url 'stem:complete_task' task.id %}" class="task-action-form">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-complete">Выполнить</button>
+        </form>
+        <form method="post" action="{% url 'stem:delete_task' task.id %}" class="task-action-form">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-delete">Удалить</button>
+        </form>
+      </div>
+    </li>
+  {% empty %}
+    <li class="empty-state">Просроченных задач нет.</li>
+  {% endfor %}
+</ul>
+
 {% endblock %}

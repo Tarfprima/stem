@@ -9,7 +9,7 @@ from .forms import NoteForm, ReminderForm  # Импортируем формы
 from .models import Task # Импортируем модель Task для работы с базой данных
 from django.views.decorators.http import require_POST # Импортируем декоратор, который разрешает только POST запросы
 from django.core.paginator import Paginator
-from django.utils import timezone 
+from datetime import timedelta 
 
 
 # Страница добавления заметки
@@ -48,26 +48,34 @@ def add_reminder(request):
     # Рендерим шаблон с формой
     return render(request, 'stem/add_reminder.html', {'form': form})
 
+# Функция проверки и маркировки просроченных задач
+def check_overdue_tasks(user):
+    overdue_time = timezone.now() - timedelta(minutes=2)
+    Task.objects.filter(
+        user=user, reminder_time__lt=overdue_time, reminder_time__isnull=False,
+        completed=False, overdue=False
+    ).update(overdue=True)
+
 # Страница профиля
 @login_required
 def profile(request):
-    # Все активные задачи (completed=False), новые сверху
-    active_tasks = Task.objects.filter(user=request.user, completed=False).order_by('-created_at')
-    # Пагинация только активных задач
-    paginator = Paginator(active_tasks, 12)
-    page_number = request.GET.get('page', 1)
-    active_page = paginator.get_page(page_number)
-
-    # Все завершённые задачи (completed=True), новые сверху
-    completed_tasks = Task.objects.filter(user=request.user, completed=True).order_by('-created_at')
+    check_overdue_tasks(request.user)
+    
+    # Оптимизированные запросы
+    user_tasks = Task.objects.filter(user=request.user)
+    active_tasks = user_tasks.filter(completed=False, overdue=False).order_by('-created_at')
+    
+    # Пагинация активных задач
+    active_page = Paginator(active_tasks, 12).get_page(request.GET.get('page', 1))
 
     return render(request, 'stem/profile.html', {
         'active_page': active_page,
-        'completed_tasks': completed_tasks,
-        'total_tasks': Task.objects.filter(user=request.user).count(),
+        'completed_tasks': user_tasks.filter(completed=True).order_by('-created_at'),
+        'overdue_tasks': user_tasks.filter(overdue=True, completed=False).order_by('-created_at'),
         'active_count': active_tasks.count(),
-        'completed_count': completed_tasks.count(),
-        'now': timezone.now(),
+        'completed_count': user_tasks.filter(completed=True).count(),
+        'overdue_count': user_tasks.filter(overdue=True, completed=False).count(),
+        'total_tasks': user_tasks.count(),
     })
 
 # Страница входа
@@ -125,31 +133,16 @@ def logout_view(request):
     logout(request)
     return redirect('stem:login')  # Перенаправляем на напоминания 
 
-@login_required  # Декоратор - функция доступна только авторизованным пользователям
-@require_POST    # Декоратор - функция принимает только POST запросы (безопасность)
+@login_required
+@require_POST
 def delete_task(request, task_id):
-    # request - объект запроса от пользователя
-    # task_id - ID задачи из URL (например, /delete/5/ -> task_id = 5)
-    
-    # Ищем задачу по ID и проверяем, что она принадлежит текущему пользователю
-    # Если задача не найдена или не принадлежит пользователю - вернет ошибку 404
-    task = get_object_or_404(Task, id=task_id, user=request.user)
-    
-    # Удаляем задачу из базы данных
-    task.delete()
-    
-    # Перенаправляем пользователя обратно на страницу профиля
+    get_object_or_404(Task, id=task_id, user=request.user).delete()
     return redirect('stem:profile')
 
-@login_required                  # Доступ только для авторизованных
-@require_POST                    # Разрешаем только POST-запросы
+@login_required
+@require_POST
 def complete_task(request, task_id):
-    # Ищем задачу по ID и пользователю, 404 если не найдена
     task = get_object_or_404(Task, id=task_id, user=request.user)
-    
-    # Помечаем задачу как завершённую
-    task.completed = True
-    task.save()                 # Сохраняем изменение в базе
-        
-    # Возвращаемся на профиль
+    task.completed, task.overdue = True, False
+    task.save()
     return redirect('stem:profile')

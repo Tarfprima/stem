@@ -99,23 +99,23 @@ class TaskManager {
   // Создание кнопок для всех задач
   setupDetailButtons() {
     document.querySelectorAll('.task-item').forEach((taskItem) => {
-      const actions = taskItem.querySelector('.task-actions');
+        const actions = taskItem.querySelector('.task-actions');
       if (!actions) return;
 
       // Создаем кнопку "Подробнее"
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'btn btn-toggle';
-      button.textContent = 'Подробнее';
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'btn btn-toggle';
+          button.textContent = 'Подробнее';
 
       button.addEventListener('click', (event) => {
         event.preventDefault();
         event.stopPropagation();
         
         this.openModal(taskItem);
-      });
+          });
 
-      actions.prepend(button);
+          actions.prepend(button);
     });
   }
 
@@ -282,13 +282,9 @@ class TaskManager {
     const container = this.containers[section];
     if (!container) return;
 
-    // Простая фильтрация по классам
-    container.querySelectorAll('.task-item:not(.empty-state)').forEach(taskItem => {
-      const showTask = filterType === 'all' || 
-                       (filterType === 'notes' && taskItem.classList.contains('note')) ||
-                       (filterType === 'reminders' && taskItem.classList.contains('reminder'));
-      
-      taskItem.classList.toggle('hidden-by-filter', !showTask);
+    container.querySelectorAll('.task-item:not(.empty-state)').forEach(task => {
+      task.classList.toggle('hidden-by-filter', 
+        filterType !== 'all' && !task.classList.contains(filterType === 'notes' ? 'note' : 'reminder'));
     });
 
     // Обновляем поиск если активен
@@ -308,4 +304,4 @@ document.addEventListener('DOMContentLoaded', () => {
   } catch (error) {
     console.error('❌ Ошибка инициализации TaskManager:', error);
   }
-});
+}); 

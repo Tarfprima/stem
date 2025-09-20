@@ -24,6 +24,9 @@ class Task(models.Model):
     # Статус завершения — булевое поле, по умолчанию False (не завершено)
     completed = models.BooleanField(default=False)
     
+    # Статус просрочки — булевое поле, по умолчанию False (не просрочено)
+    overdue = models.BooleanField(default=False)
+    
     # Магический метод __str__ — возвращает название задачи для удобного отображения в админке и списке
     def __str__(self):
         return self.title
