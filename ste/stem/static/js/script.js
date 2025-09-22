@@ -1,7 +1,7 @@
-class TaskManager {
-  constructor() {
+class TaskManager {  // TaskManager - класс для управления интерфейсом задач
+  constructor() {  // constructor - метод инициализации класса
     // Инициализация основных элементов интерфейса
-    this.initializeElements();
+    this.initializeElements();  // this - ссылка на текущий объект класса
     
     // Запуск всех компонентов
     this.setupModalWindows();
@@ -11,13 +11,13 @@ class TaskManager {
   }
 
   // Инициализация элементов DOM
-  initializeElements() {
+  initializeElements() {  // метод инициализации элементов интерфейса
     // Модальное окно и его компоненты
-    this.modal = {
-      overlay: document.getElementById('taskModal'),
+    this.modal = {  // объект с элементами модального окна
+      overlay: document.getElementById('taskModal'),  // getElementById() - метод получения элемента по ID
       closeBtn: document.getElementById('modalCloseBtn'),
       content: document.getElementById('modalContent'),
-      title: document.querySelector('.modal-task-title'),
+      title: document.querySelector('.modal-task-title'),  // querySelector() - метод поиска элемента по CSS селектору
       icon: document.querySelector('.modal-task-icon'),
       created: document.getElementById('modalCreated'),
       reminder: document.getElementById('modalReminder'),
@@ -25,10 +25,10 @@ class TaskManager {
     };
 
     // Поисковые элементы
-    this.search = {
-      activeInput: document.getElementById('searchActiveTask'),
-      completedInput: document.getElementById('searchCompletedTask'),
-      activeCount: document.getElementById('activeResultsCount'),
+    this.search = {  // объект с элементами поиска
+      activeInput: document.getElementById('searchActiveTask'),  // поле поиска активных задач
+      completedInput: document.getElementById('searchCompletedTask'),  // поле поиска завершенных задач
+      activeCount: document.getElementById('activeResultsCount'),  // activeCount - переменная счетчика результатов поиска
       completedCount: document.getElementById('completedResultsCount')
     };
 

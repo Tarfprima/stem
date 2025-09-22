@@ -653,3 +653,97 @@ p {
         font-size: 1.1em;
     }
 }
+
+/* Telegram интеграция */
+.telegram-integration {
+    background: linear-gradient(135deg, #e8f4fd 0%, #f1f8ff 100%);
+    border: 2px solid #0088cc;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    color: #2c3e50;
+    box-shadow: 0 4px 15px rgba(0, 136, 204, 0.1);
+}
+
+.telegram-integration code {
+    background: #0088cc;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.telegram-btn {
+    display: inline-block;
+    background: #0088cc;
+    color: white !important;
+    padding: 10px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    margin: 10px 0;
+    transition: background 0.3s ease;
+}
+
+.telegram-btn:hover {
+    background: #006699;
+    transform: translateY(-1px);
+}
+
+.telegram-status {
+    margin: 10px 0 0 0;
+    font-size: 0.9em;
+    color: #7f8c8d;
+}
+
+.telegram-status.connected {
+    color: #27ae60;
+    font-weight: 600;
+    background: #d4edda;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #c3e6cb;
+}
+
+.telegram-buttons {
+    margin: 15px 0;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.telegram-disconnect-btn {
+    display: inline-block;
+    background: #e74c3c;
+    color: white !important;
+    padding: 10px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background 0.3s ease;
+}
+
+.telegram-disconnect-btn:hover {
+    background: #c0392b;
+    transform: translateY(-1px);
+}
+
+.telegram-hint {
+    margin: 10px 0;
+    font-size: 0.9em;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+.telegram-hint code {
+    background: #f8f9fa;
+    color: #e74c3c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+}

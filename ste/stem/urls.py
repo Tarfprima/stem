@@ -1,8 +1,10 @@
-# stem/urls.py
-
-# Импортируем path для создания маршрутов (стандартный импорт в Django)
+# django.urls.path - функция Django для создания URL маршрутов  
+# Связывает URL шаблоны с view-функциями, поддерживает параметры в URL
+# Без этого импорта: невозможно создать маршрутизацию, не работают ссылки на страницы
 from django.urls import path
-# Импортируем представления из текущей папки
+# Импорт всех view-функций из текущего приложения (views.py)
+# Позволяет вызывать функции как views.add_note, views.profile и т.д.
+# Без этого импорта: URL не могут быть связаны с обработчиками запросов
 from . import views
 
 # Пространство имён для URL, чтобы избежать конфликтов (актуальный подход в Django)
@@ -28,5 +30,7 @@ urlpatterns = [
     # name='delete_task' - имя URL для использования в шаблонах через {% url %}
     # строка для пометки «Выполнено»
     path('complete/<int:task_id>/', views.complete_task, name='complete_task'),
+    # URL для отключения Telegram бота
+    path('disconnect-telegram/', views.disconnect_telegram, name='disconnect_telegram'),
 
 ]

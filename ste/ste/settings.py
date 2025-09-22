@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,12 +21,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
  
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '8(kzvaqe0(^$rq+abao!lt2mhfc%sl^&m7uoi9(expe70$ub@0'
+SECRET_KEY = ''
 
-# Импортируем токен из secret.py 
+
 from secret import TOKEN
 
-# Импортируем Bot из aiogram 
+# aiogram.Bot - основной класс для создания Telegram бота из библиотеки aiogram
+# Используется для отправки сообщений пользователям через Telegram API  
+# Без этого импорта: невозможна интеграция с Telegram, не работают уведомления
 from aiogram import Bot
 
 # Создаём объект бота с токеном (один бот на весь проект)
@@ -84,9 +87,11 @@ WSGI_APPLICATION = 'ste.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql', # Используетя БД PostgreSQL
+        'ENGINE': 'django.db.backends.postgresql',  # Используется PostgreSQL
         'NAME': 'stem',
         'USER': 'creator',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -113,9 +118,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'  # Московское время (UTC+3)
 
 USE_I18N = True
 
@@ -126,7 +131,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static' ] # чтобы static был виден в папке проекта а не в паке приложения. 
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # Папка для сборки статических файлов в production
+
+# Django автоматически находит static папки в приложениях (stem/static/)
+# STATICFILES_DIRS = [BASE_DIR / 'static' ]  # Закомментировано - использую автопоиск 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

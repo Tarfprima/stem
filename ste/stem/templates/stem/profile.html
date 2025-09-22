@@ -6,6 +6,37 @@
 {% block content %}
 <h1>{{ user.username }}</h1>
 
+<!-- Telegram интеграция -->
+<div class="telegram-integration">
+  <p><strong>Ваш ID для Telegram бота:</strong> <code>{{ user.telegramprofile.unique_id }}</code></p>
+  
+  {% if user.telegramprofile.telegram_chat_id %}
+    <!-- Бот подключен - показываем кнопку отключения -->
+    <p class="telegram-status connected">✅ Telegram бот подключен</p>
+    <div class="telegram-buttons">
+      <a href="https://t.me/top411_bot" class="btn telegram-btn" target="_blank">
+        💬 Открыть бота
+      </a>
+      <form method="post" action="{% url 'stem:disconnect_telegram' %}" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn telegram-disconnect-btn" 
+                onclick="return confirm('Вы уверены, что хотите отключить Telegram бота? Вы сможете подключиться заново используя тот же ID.')">
+          🔌 Отключить бота
+        </button>
+      </form>
+    </div>
+  {% else %}
+    <!-- Бот не подключен - показываем кнопку подключения -->
+    <p class="telegram-status">⚠️ Telegram бот не подключен</p>
+    <a href="https://t.me/top411_bot" class="btn telegram-btn" target="_blank">
+      🤖 Подключить Telegram бот
+    </a>
+    <p class="telegram-hint">
+      💡 Откройте бота и используйте команду: <code>/login {{ user.telegramprofile.unique_id }}</code>
+    </p>
+  {% endif %}
+</div>
+
 <!-- Статистика задач -->
 <p>Всего задач: {{ total_tasks }}</p>
 <p>Активных: {{ active_count }}</p>
