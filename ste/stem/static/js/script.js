@@ -1,3 +1,6 @@
+// я использую "this" он делает класс TaskManager полноценным объектом, где все методы могут работать с общими данными (this.modal, this.search, etc.).
+// "this" - способ объекта ссылаться на самого себя. 
+
 class TaskManager {  // TaskManager - класс для управления интерфейсом задач
   constructor() {  // constructor - метод инициализации класса
     // Инициализация основных элементов интерфейса
@@ -55,18 +58,43 @@ class TaskManager {  // TaskManager - класс для управления и�
   // === МОДАЛЬНЫЕ ОКНА ===
   // Настройка функционала всплывающих окон для просмотра задач
   setupModalWindows() {
-    if (!this.modal.overlay) return;
+    if (this.modal.overlay == null) return;
 
-    // Закрытие модального окна по кнопке
-    this.modal.closeBtn?.addEventListener('click', () => this.closeModal());
+  // Закрытие модального окна по кнопке
+  if (this.modal.closeBtn) {
+    const self = this;
+    this.modal.closeBtn.addEventListener('click', function() { 
+      self.closeModal(); 
+    });
+  }
   }
 
   // Открытие модального окна с данными задачи
   openModal(taskItem) {
     // Извлекаем данные напрямую из карточки
-    const title = taskItem.querySelector('.task-title')?.textContent || 'Без названия';
-    const icon = taskItem.querySelector('.task-icon')?.textContent || '📝';
-    const description = taskItem.querySelector('.task-desc')?.textContent || '';
+    const titleElement = taskItem.querySelector('.task-title');
+    let title;
+    if (titleElement) {
+      title = titleElement.textContent;
+    } else {
+      title = 'Без названия';
+    }
+    
+    const iconElement = taskItem.querySelector('.task-icon');
+    let icon;
+    if (iconElement) {
+      icon = iconElement.textContent;
+    } else {
+      icon = '📝';
+    }
+    
+    const descElement = taskItem.querySelector('.task-desc');
+    let description;
+    if (descElement) {
+      description = descElement.textContent;
+    } else {
+      description = '';
+    }
     const createdElement = taskItem.querySelector('.task-meta small');
     const reminderElement = taskItem.querySelector('.reminder-time');
     
@@ -97,10 +125,14 @@ class TaskManager {  // TaskManager - класс для управления и�
 
   // === КНОПКИ "ПОДРОБНЕЕ" ===
   // Создание кнопок для всех задач
+  
+  // forEach находит все элементы с классом task-item перебирает каждый найденный элемент
+  // Для каждого элемента создает кнопку "Подробнее"
   setupDetailButtons() {
-    document.querySelectorAll('.task-item').forEach((taskItem) => {
+    const self = this;
+    document.querySelectorAll('.task-item').forEach(function(taskItem) { 
         const actions = taskItem.querySelector('.task-actions');
-      if (!actions) return;
+      if (actions == null) return;
 
       // Создаем кнопку "Подробнее"
           const button = document.createElement('button');
@@ -108,14 +140,12 @@ class TaskManager {  // TaskManager - класс для управления и�
           button.className = 'btn btn-toggle';
           button.textContent = 'Подробнее';
 
-      button.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        
-        this.openModal(taskItem);
+      button.addEventListener('click', function() {
+        self.openModal(taskItem);
           });
 
           actions.prepend(button);
+          // Кнопка добавляется в НАЧАЛО контейнера actions с помощью prepend()
     });
   }
 
@@ -123,17 +153,18 @@ class TaskManager {  // TaskManager - класс для управления и�
   // === ФУНКЦИОНАЛ ПОИСКА ===
   // Настройка поиска по названиям задач в реальном времени
   setupSearchFunctionality() {
+    const self = this;
     // Поиск для активных задач
     if (this.search.activeInput) {
-      this.search.activeInput.addEventListener('input', () => {
-        this.performSearch('active', this.search.activeInput.value, this.search.activeCount);
+      this.search.activeInput.addEventListener('input', function() {
+        self.performSearch('active', self.search.activeInput.value, self.search.activeCount);
       });
     }
     
     // Поиск для завершенных задач
     if (this.search.completedInput) {
-      this.search.completedInput.addEventListener('input', () => {
-        this.performSearch('completed', this.search.completedInput.value, this.search.completedCount);
+      this.search.completedInput.addEventListener('input', function() {
+        self.performSearch('completed', self.search.completedInput.value, self.search.completedCount);
       });
     }
   }
@@ -142,9 +173,10 @@ class TaskManager {  // TaskManager - класс для управления и�
   // section - секция для поиска ('active' или 'completed')
   // query - поисковый запрос
   // countElement - элемент счетчика результатов
+//   performSearch - функция поиска, которая:
   performSearch(section, query, countElement) {
     const container = this.containers[section];
-    if (!container) return;
+    if (container == null) return;
 
     const searchQuery = query.toLowerCase().trim();
     const taskItems = container.querySelectorAll('.task-item:not(.empty-state):not(.hidden-by-filter)');
@@ -153,13 +185,28 @@ class TaskManager {  // TaskManager - класс для управления и�
     const totalCount = taskItems.length;
 
     // Фильтрация задач по поисковому запросу
-    taskItems.forEach(taskItem => {
+    taskItems.forEach(function(taskItem) {
       const title = taskItem.querySelector('.task-title');
-      const titleText = title?.textContent.toLowerCase() || '';
+      let titleText;
+      if (title) {
+        titleText = title.textContent.toLowerCase();
+      } else {
+        titleText = '';
+      }
       
-      const isMatch = !searchQuery || titleText.includes(searchQuery);
+      let isMatch;
+      if (searchQuery == '' || titleText.includes(searchQuery)) {
+        isMatch = true;
+      } else {
+        isMatch = false;
+      }
       
-      taskItem.classList.toggle('hidden-by-search', !isMatch);
+      if (isMatch == false) {
+        taskItem.classList.add('hidden-by-search');
+      } else {
+        taskItem.classList.remove('hidden-by-search');
+      }
+      
       if (isMatch) visibleCount++;
     });
 
@@ -173,47 +220,48 @@ class TaskManager {  // TaskManager - класс для управления и�
   // query - поисковый запрос
   // count - количество найденных результатов
   updateResultsCount(countElement, query, count) {
-    if (!countElement) return;
+    if (countElement == null) return;
 
-    if (!query) {
+    if (query == '') {
       countElement.textContent = '';
       return;
     }
 
     // Правильное склонение для русского языка
-    const getResultWord = (num) => {
-      if (num === 1) return 'результат';
+    function getResultWord(num) {
+      if (num == 1) return 'результат';
       if (num >= 2 && num <= 4) return 'результата';
       return 'результатов';
-    };
+    }
 
-    countElement.textContent = `${count} ${getResultWord(count)}`;
+    countElement.textContent = count + ' ' + getResultWord(count);
   }
 
   // === ФУНКЦИОНАЛ СОРТИРОВКИ И ФИЛЬТРАЦИИ ===
   // Настройка сортировки и фильтрации задач
   setupSortAndFilterFunctionality() {
+    const self = this;
     // Настройка для активных задач
     if (this.sort.activeSelect) {
-      this.sort.activeSelect.addEventListener('change', (event) => {
-        this.sortTasks('active', event.target.value);
+      this.sort.activeSelect.addEventListener('change', function(event) {
+        self.sortTasks('active', event.target.value);
       });
     }
     if (this.filter.activeSelect) {
-      this.filter.activeSelect.addEventListener('change', (event) => {
-        this.filterTasks('active', event.target.value);
+      this.filter.activeSelect.addEventListener('change', function(event) {
+        self.filterTasks('active', event.target.value);
       });
     }
     
     // Настройка для завершенных задач
     if (this.sort.completedSelect) {
-      this.sort.completedSelect.addEventListener('change', (event) => {
-        this.sortTasks('completed', event.target.value);
+      this.sort.completedSelect.addEventListener('change', function(event) {
+        self.sortTasks('completed', event.target.value);
       });
     }
     if (this.filter.completedSelect) {
-      this.filter.completedSelect.addEventListener('change', (event) => {
-        this.filterTasks('completed', event.target.value);
+      this.filter.completedSelect.addEventListener('change', function(event) {
+        self.filterTasks('completed', event.target.value);
       });
     }
   }
@@ -223,17 +271,30 @@ class TaskManager {  // TaskManager - класс для управления и�
   // sortOrder - порядок сортировки ('default', 'date-asc', 'date-desc')
   sortTasks(section, sortOrder) {
     const container = this.containers[section];
-    if (!container || sortOrder === 'default') return;
+    if (container == null || sortOrder == 'default') return;
 
     // Получаем все задачи (кроме служебных элементов)
-    const taskItems = Array.from(container.querySelectorAll('.task-item:not(.empty-state)'));
+    const taskNodeList = container.querySelectorAll('.task-item:not(.empty-state)');
+    const taskItems = [];
+    for (let i = 0; i < taskNodeList.length; i++) {
+      taskItems.push(taskNodeList[i]);
+    }
     
     // Сортируем по дате (используем строковое сравнение для простоты)
-    taskItems.sort((taskA, taskB) => {
-      const dateA = this.getTaskDateString(taskA);
-      const dateB = this.getTaskDateString(taskB);
+    const self = this;
+    taskItems.sort(function(taskA, taskB) {
+      const dateA = self.getTaskDateString(taskA);
+      const dateB = self.getTaskDateString(taskB);
       
-      return sortOrder === 'date-asc' ? dateA.localeCompare(dateB) : dateB.localeCompare(dateA);
+      if (sortOrder == 'date-asc') {
+        if (dateA < dateB) return -1;
+        if (dateA > dateB) return 1;
+        return 0;
+      } else {
+        if (dateB < dateA) return -1;
+        if (dateB > dateA) return 1;
+        return 0;
+      }
     });
 
     // Сохраняем служебный элемент если есть
@@ -241,17 +302,33 @@ class TaskManager {  // TaskManager - класс для управления и�
     
     // Перестраиваем контейнер
     container.innerHTML = '';
-    taskItems.forEach(item => container.appendChild(item));
+    taskItems.forEach(function(item) {
+      container.appendChild(item);
+    });
     
     // Возвращаем служебный элемент если нужно
-    if (emptyState && taskItems.length === 0) {
-      container.appendChild(emptyState);
+    if (emptyState != null) {
+      if (taskItems.length == 0) {
+        container.appendChild(emptyState);
+      }
     }
 
     // Повторяем поиск если активен
-    const searchInput = section === 'active' ? this.search.activeInput : this.search.completedInput;
-    if (searchInput?.value.trim()) {
-      searchInput.dispatchEvent(new Event('input'));
+    let searchInput;
+    let countElement;
+    if (section == 'active') {
+      searchInput = this.search.activeInput;
+      countElement = this.search.activeCount;
+    } else {
+      searchInput = this.search.completedInput;
+      countElement = this.search.completedCount;
+    }
+    
+    if (searchInput != null) {
+      if (searchInput.value.trim() != '') {
+        // Повторяем поиск напрямую
+        this.performSearch(section, searchInput.value, countElement);
+      }
     }
   }
 
@@ -260,15 +337,19 @@ class TaskManager {  // TaskManager - класс для управления и�
   // Возвращает дату в формате "YYYY-MM-DD HH:MM" для сортировки
   getTaskDateString(taskItem) {
     const metaElement = taskItem.querySelector('.task-meta small');
-    if (!metaElement) return '0000-00-00 00:00';
+    if (metaElement == null) return '0000-00-00 00:00';
     
     const dateText = metaElement.textContent;
     // Извлекаем дату в формате дд.мм.гггг чч:мм и конвертируем в гггг-мм-дд чч:мм для сравнения
     const match = dateText.match(/(\d{2})\.(\d{2})\.(\d{4})\s*(\d{2}):(\d{2})/);
     
     if (match) {
-      const [, day, month, year, hours, minutes] = match;
-      return `${year}-${month}-${day} ${hours}:${minutes}`;
+      const day = match[1];
+      const month = match[2];
+      const year = match[3];
+      const hours = match[4];
+      const minutes = match[5];
+      return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes;
     }
     
     return '0000-00-00 00:00'; // Дата по умолчанию
@@ -280,24 +361,55 @@ class TaskManager {  // TaskManager - класс для управления и�
   // filterType - тип фильтра ('all', 'notes', 'reminders')
   filterTasks(section, filterType) {
     const container = this.containers[section];
-    if (!container) return;
+    if (container == null) return;
 
-    container.querySelectorAll('.task-item:not(.empty-state)').forEach(task => {
-      task.classList.toggle('hidden-by-filter', 
-        filterType !== 'all' && !task.classList.contains(filterType === 'notes' ? 'note' : 'reminder'));
+    container.querySelectorAll('.task-item:not(.empty-state)').forEach(function(task) {
+      if (filterType == 'all') {
+        task.classList.remove('hidden-by-filter');
+      } else {
+        let shouldHide = false;
+        
+        if (filterType == 'notes') {
+          if (task.classList.contains('note') == false) {
+            shouldHide = true;
+          }
+        } else if (filterType == 'reminders') {
+          if (task.classList.contains('reminder') == false) {
+            shouldHide = true;
+          }
+        }
+        
+        if (shouldHide) {
+          task.classList.add('hidden-by-filter');
+        } else {
+          task.classList.remove('hidden-by-filter');
+        }
+      }
     });
 
     // Обновляем поиск если активен
-    const searchInput = section === 'active' ? this.search.activeInput : this.search.completedInput;
-    if (searchInput?.value.trim()) {
-      searchInput.dispatchEvent(new Event('input'));
+    let searchInput;
+    let countElement;
+    if (section == 'active') {
+      searchInput = this.search.activeInput;
+      countElement = this.search.activeCount;
+    } else {
+      searchInput = this.search.completedInput;
+      countElement = this.search.completedCount;
+    }
+    
+    if (searchInput != null) {
+      if (searchInput.value.trim() != '') {
+        // Повторяем поиск напрямую
+        this.performSearch(section, searchInput.value, countElement);
+      }
     }
   }
 }
 
 // === ИНИЦИАЛИЗАЦИЯ ===
 // Запуск системы управления задачами после загрузки DOM
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
   try {
     // Создаем объект менеджера задач (запускаем всю систему)
     window.taskManager = new TaskManager();

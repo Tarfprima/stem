@@ -80,22 +80,28 @@ def get_user_tasks_filtered(user, task_type="all"):  # task_type="all" - пар�
     if not tasks:
         return empty_msg
     
-    result = f"{title}\n\n"
+    result = title + "\n\n"
     for task in tasks:
         if task_type == "notes":
-            result += f"📝 *{task.title}*\n"
+            result += "📝 *" + task.title + "*\n"
             if task.description:  # description - поле модели с описанием задачи
-                result += f"_{task.description}_\n"
-            result += f"📅 Создано: {task.created_at.strftime('%d.%m.%Y %H:%M')}\n\n"
+                result += "_" + task.description + "_\n"
+            result += "📅 Создано: " + task.created_at.strftime('%d.%m.%Y %H:%M') + "\n\n"
         elif task_type == "reminders":
-            icon = "❗️" if task.overdue else "⏰"  # overdue - boolean поле статуса просрочки
-            status = "Просрочено" if task.overdue else "Активно"  # переменная статуса для отображения
-            result += f"{icon} *{task.title}*\n"
+            # Определяем иконку в зависимости от статуса
+            if task.overdue:
+                icon = "❗️"
+                status = "Просрочено"
+            else:
+                icon = "⏰"
+                status = "Активно"
+            
+            result += icon + " *" + task.title + "*\n"
             if task.description:  # проверка наличия описания задачи
-                result += f"_{task.description}_\n"
-            result += f"📅 Создано: {task.created_at.strftime('%d.%m.%Y %H:%M')}\n"
-            result += f"⏰ Напоминание: {task.reminder_time.strftime('%d.%m.%Y %H:%M')}\n"
-            result += f"Статус: {status}\n\n"
+                result += "_" + task.description + "_\n"
+            result += "📅 Создано: " + task.created_at.strftime('%d.%m.%Y %H:%M') + "\n"
+            result += "⏰ Напоминание: " + task.reminder_time.strftime('%d.%m.%Y %H:%M') + "\n"
+            result += "Статус: " + status + "\n\n"
     
     return result
 
@@ -120,20 +126,35 @@ def get_all_tasks(user):
     # Отображаем активные задачи
     if active:
         result += "🟢 *АКТИВНЫЕ:*\n"
-        result += "\n".join(f"{'⏰' if t.reminder_time else '📝'} {t.title}" for t in active) + "\n\n"
+        # Проходим по каждой активной задаче
+        for task in active:
+            if task.reminder_time:
+                task_icon = "⏰"
+            else:
+                task_icon = "📝"
+            result += task_icon + " " + task.title + "\n"
+        result += "\n"
     
     # Отображаем просроченные задачи
     if overdue:
         result += "🔴 *ПРОСРОЧЕННЫЕ:*\n"
-        result += "\n".join(f"❗️ {t.title}" for t in overdue) + "\n\n"
+        for task in overdue:
+            result += "❗️ " + task.title + "\n"
+        result += "\n"
     
     # Отображаем завершенные задачи
     if completed:
         result += "✅ *ЗАВЕРШЕННЫЕ:*\n"
-        result += "\n".join(f"✅ {t.title}" for t in completed) + "\n\n"
+        for task in completed:
+            result += "✅ " + task.title + "\n"
+        result += "\n"
     
     # Добавляем статистику
-    result += f"📊 *Статистика:* Всего: {all_tasks.count()} | Активных: {active.count()} | Просроченных: {overdue.count()} | Завершенных: {completed.count()}"
+    total_count = str(all_tasks.count())
+    active_count = str(active.count())
+    overdue_count = str(overdue.count())
+    completed_count = str(completed.count())
+    result += "📊 *Статистика:* Всего: " + total_count + " | Активных: " + active_count + " | Просроченных: " + overdue_count + " | Завершенных: " + completed_count
     return result
 
 # Функция для проверки и отправки напоминаний
@@ -169,14 +190,20 @@ def mark_notification_sent(task_id):
 async def send_notification(task):  # async функция - асинхронная функция для отправки уведомлений
     """Отправляет уведомление о напоминании пользователю в Telegram"""
     try:  # try блок - обработка исключений
-        # Проверяем подключение Telegram
-        if not (hasattr(task.user, 'telegramprofile') and task.user.telegramprofile.telegram_chat_id):  # hasattr() - функция проверки наличия атрибута у объекта
+        # Проверяем наличие Telegram профиля
+        if not hasattr(task.user, 'telegramprofile'):  # hasattr() - функция проверки наличия атрибута у объекта
+            return False
+        
+        # Проверяем наличие chat_id для отправки
+        if not task.user.telegramprofile.telegram_chat_id:
             return False
         
         chat_id = task.user.telegramprofile.telegram_chat_id  # переменная с ID чата для отправки сообщения
         
-        # Формируем компактное сообщение с напоминанием
-        desc_text = f"\n📝 _{task.description}_\n" if task.description else ""  # условное выражение для описания
+        # Формируем текст описания
+        desc_text = ""
+        if task.description:
+            desc_text = "\n📝 _" + task.description + "_\n"
         message = (  # переменная с текстом сообщения
             f"⏰ *НАПОМИНАНИЕ!*\n\n🔔 *{task.title}*\n{desc_text}"
             f"\n📅 Создано: {timezone.localtime(task.created_at).strftime('%d.%m.%Y %H:%M')}\n"  # localtime() - функция преобразования времени в локальный часовой пояс
@@ -190,7 +217,8 @@ async def send_notification(task):  # async функция - асинхронн�
         return True
         
     except Exception as e:  # Exception - базовый класс всех исключений Python
-        print(f"Ошибка отправки уведомления для задачи {task.id}: {e}")  # вывод ошибки в консоль
+        task_id = str(task.id)
+        print("Ошибка отправки уведомления для задачи " + task_id + ": " + str(e))  # вывод ошибки в консоль
         return False
 
 # Основная функция проверки и отправки напоминаний
@@ -201,16 +229,22 @@ async def check_and_send_notifications():  # функция проверки и 
         if not pending_tasks:
             return
         
-        print(f"📤 Найдено {len(pending_tasks)} напоминаний для отправки")
+        pending_count = str(len(pending_tasks))
+        print("📤 Найдено " + pending_count + " напоминаний для отправки")
         
         # Отправляем уведомления с паузой между отправками
         for task in pending_tasks:  # цикл по каждой задаче
-            status = "✅" if await send_notification(task) else "❌"  # переменная статуса отправки
-            print(f"{status} {task.title} -> {task.user.username}")
+            # Отправляем уведомление и определяем статус
+            notification_sent = await send_notification(task)
+            if notification_sent:
+                status = "✅"
+            else:
+                status = "❌"
+            print(status + " " + task.title + " -> " + task.user.username)
             await asyncio.sleep(0.5)  # sleep() - функция паузы на 0.5 секунды
             
     except Exception as e:  # обработка любых ошибок в функции
-        print(f"❌ Ошибка в check_and_send_notifications: {e}")
+        print("❌ Ошибка в check_and_send_notifications: " + str(e))
 
 # Фоновая задача для периодической проверки напоминаний
 async def notification_worker():  # фоновая задача для проверки напоминаний
@@ -220,7 +254,7 @@ async def notification_worker():  # фоновая задача для пров�
         try:
             await check_and_send_notifications()
         except Exception as e:  # перехват любых ошибок в цикле
-            print(f"❌ Ошибка в notification_worker: {e}")
+            print("❌ Ошибка в notification_worker: " + str(e))
         finally:  # finally блок - выполняется в любом случае
             await asyncio.sleep(60)  # пауза 60 секунд между проверками
 
@@ -274,6 +308,7 @@ async def command_login_handler(message, command: CommandObject):  # CommandObje
         )
         return
     
+    # strip() удаляет: Пробелы в начале и конце, Табуляцию (\t), Переносы строк (\n, \r)
     try:
         unique_id = int(command.args.strip())
         # Проверяем, что ID состоит именно из 10 цифр
@@ -416,13 +451,14 @@ async def main():
     
     # Запускаем основной polling бота
     print("🤖 Запуск Telegram бота...")
-    await dp.start_polling(BOT)
+    await dp.start_polling(BOT) #  запуск основного цикла работы Telegram бота, который начинает опрашивать серверы Telegram на предмет новых сообщений. В общем это Polling)
+
 
 # Запуск бота - точка входа в приложение
 if __name__ == "__main__":  # условие запуска при прямом выполнении файла
     try:
         asyncio.run(main())  # запуск основной асинхронной функции
-    except KeyboardInterrupt:  # KeyboardInterrupt - исключение при нажатии Ctrl+C
+    except KeyboardInterrupt:  # KeyboardInterrupt - исключение при нажатии Ctrl+C. Без обработки KeyboardInterrupt бот выводил бы некрасивую трассировку ошибки, кароче легче понять при окладке, не обязателен но приятное дополнение. 
         print("\n🛑 Бот остановлен")
-    except Exception as e:  # обработка любых других критических ошибок
-        print(f"❌ Критическая ошибка: {e}")
+    except Exception as e:  # обработка любых других критических ошибок. Это базовый класс для всех исключений в Python (кроме системных).
+        print("❌ Критическая ошибка: " + str(e))

@@ -73,10 +73,16 @@ def add_reminder(request):  # view-функция для добавления н
 # Функция проверки и маркировки просроченных задач
 def check_overdue_tasks(user):  # функция проверки просроченных задач
     overdue_time = timezone.now() - timedelta(minutes=2)  # timedelta - класс временного интервала; minutes=2 - интервал в 2 минуты
-    Task.objects.filter(  # фильтрация задач по условиям
-        user=user, reminder_time__lt=overdue_time, reminder_time__isnull=False,  # reminder_time__lt - фильтр "меньше чем"; reminder_time__isnull=False - исключаем задачи без времени
-        completed=False, overdue=False
-    ).update(overdue=True)  # update() - метод массового обновления записей в БД
+    
+    # Находим задачи которые нужно отметить как просроченные
+    overdue_tasks = Task.objects.filter(user=user)  # сначала берем задачи пользователя
+    overdue_tasks = overdue_tasks.filter(reminder_time__lt=overdue_time)  # время напоминания уже прошло
+    overdue_tasks = overdue_tasks.filter(reminder_time__isnull=False)  # у задачи есть время напоминания
+    overdue_tasks = overdue_tasks.filter(completed=False)  # задача не завершена
+    overdue_tasks = overdue_tasks.filter(overdue=False)  # задача еще не отмечена как просроченная
+    
+    # Отмечаем найденные задачи как просроченные
+    overdue_tasks.update(overdue=True)  # update() - метод массового обновления записей в БД
 
 # Страница профиля
 @login_required
@@ -91,17 +97,32 @@ def profile(request):  # view-функция страницы профиля п�
     active_tasks = user_tasks.filter(completed=False, overdue=False).order_by('-created_at')  # фильтрация активных задач; order_by() - сортировка по дате создания
     
     # Пагинация активных задач
-    active_page = Paginator(active_tasks, 12).get_page(request.GET.get('page', 1))  # Paginator - класс разбивки на страницы; get_page() - получение конкретной страницы
+    paginator = Paginator(active_tasks, 12)  # разбиваем задачи по 12 на страницу
+    page_number = request.GET.get('page', 1)  # получаем номер страницы из URL
+    active_page = paginator.get_page(page_number)  # получаем задачи для текущей страницы
 
-    return render(request, 'stem/profile.html', {
+    # Подготавливаем данные для шаблона
+    completed_tasks = user_tasks.filter(completed=True).order_by('-created_at')
+    overdue_tasks = user_tasks.filter(overdue=True, completed=False).order_by('-created_at')
+    
+    # Считаем количество задач разных типов
+    active_count = active_tasks.count()
+    completed_count = completed_tasks.count()
+    overdue_count = overdue_tasks.count()
+    total_tasks = user_tasks.count()
+    
+    # Передаем все данные в шаблон
+    context = {
         'active_page': active_page,
-        'completed_tasks': user_tasks.filter(completed=True).order_by('-created_at'),
-        'overdue_tasks': user_tasks.filter(overdue=True, completed=False).order_by('-created_at'),
-        'active_count': active_tasks.count(),
-        'completed_count': user_tasks.filter(completed=True).count(),
-        'overdue_count': user_tasks.filter(overdue=True, completed=False).count(),
-        'total_tasks': user_tasks.count(),
-    })
+        'completed_tasks': completed_tasks,
+        'overdue_tasks': overdue_tasks,
+        'active_count': active_count,
+        'completed_count': completed_count,
+        'overdue_count': overdue_count,
+        'total_tasks': total_tasks,
+    }
+    
+    return render(request, 'stem/profile.html', context)
 
 # Страница входа
 def login_view(request):  # view-функция страницы входа
@@ -161,14 +182,18 @@ def logout_view(request):
 @login_required
 @require_POST  # декоратор разрешающий только POST запросы
 def delete_task(request, task_id):  # view-функция удаления задачи; task_id - параметр ID задачи из URL
-    get_object_or_404(Task, id=task_id, user=request.user).delete()  # get_object_or_404() - функция получения объекта или ошибки 404; delete() - метод удаления объекта
+    # Находим задачу и удаляем её
+    task = get_object_or_404(Task, id=task_id, user=request.user)  # get_object_or_404() - функция получения объекта или ошибки 404
+    task.delete()  # удаляем задачу
     return redirect('stem:profile')  # перенаправление обратно на профиль
 
 @login_required
 @require_POST
 def complete_task(request, task_id):
     task = get_object_or_404(Task, id=task_id, user=request.user)
-    task.completed, task.overdue = True, False
+    # Отмечаем задачу как выполненную
+    task.completed = True
+    task.overdue = False
     task.save()
     return redirect('stem:profile')
 
@@ -179,7 +204,10 @@ def disconnect_telegram(request):
     """Отвязывает Telegram бота от профиля пользователя через веб-интерфейс"""
     try:
         # Получаем или создаем Telegram профиль пользователя
-        profile, created = TelegramProfile.objects.get_or_create(user=request.user)
+        result = TelegramProfile.objects.get_or_create(user=request.user)
+        profile = result[0]  # первый элемент - сам объект
+        created = result[1]  # второй элемент - был ли создан новый объект
+        
         if profile.telegram_chat_id:
             # Если бот был подключен - отключаем его
             profile.telegram_chat_id = None
